@@ -20,6 +20,6 @@ from mainapp.views import index, products
 # my urls
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index),
-    path('products/', products),
+    path('', index, name='index'),
+    path('products/', products,name='products'),
 ]
