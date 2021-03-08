@@ -1,0 +1,20 @@
+{% extends 'mainapp/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <div class="card h-100">
+        <a href="#">
+            <img class="card-img-top"
+                 src="/media/{{ item.image }}"
+                 alt="">
+        </a>
+        <div class="card-body">
+            <h4 class="card-title">
+                <a href="{% url 'products:product' item.id %}">{{ item.name }}</a>
+
+            </h4>
+            <h5>{{ item.price }}&#8381</h5>
+            <p class="card-text">{{ item.short_description }}</p>
+        </div>
+    </div>
+{% endblock %}
