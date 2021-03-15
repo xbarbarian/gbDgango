@@ -27,3 +27,5 @@ def product(request):
         'title': Product.name
     }
     return render(request, 'mainapp/product.html', context)
+
+
