@@ -1,4 +1,5 @@
 .idea
 __pycache__/
 media/
+/static/vendor/img/no-image.png
 db.sqlite3
