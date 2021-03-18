@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from authapp.models import User
 from adminapp.forms import UserAdminRegistrationForm, UserAdminProfileForm
+from authapp.views import logout
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
