@@ -1,23 +1,56 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponseRedirect
+from django.urls import reverse
+from django.contrib.auth.decorators import user_passes_test
 
-# Create your views here.
+from authapp.models import User
+from adminapp.forms import UserAdminRegistrationForm, UserAdminProfileForm
 
 
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def index(request):
     return render(request, 'adminapp/index.html')
 
 
+# READ
+@user_passes_test(lambda u: u.is_superuser)
 def admin_users(request):
-    return render(request, 'adminapp/admin-users-read.html')
+    context = {'users': User.objects.all()}
+    return render(request, 'adminapp/admin-users-read.html', context)
 
 
+# CREATE
+@user_passes_test(lambda u: u.is_superuser)
 def admin_users_create(request):
-    return render(request, 'adminapp/admin-users-create.html')
+    if request.method == 'POST':
+        form = UserAdminRegistrationForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('admin_staff:admin_users'))
+    else:
+        form = UserAdminRegistrationForm()
+    context = {'form': form}
+    return render(request, 'adminapp/admin-users-create.html', context)
 
 
-def admin_users_update(request):
-    return render(request, 'adminapp/admin-users-update-delete.html')
+# UPDATE
+@user_passes_test(lambda u: u.is_superuser)
+def admin_users_update(request, user_id):
+    user = User.objects.get(id=user_id)
+    if request.method == 'POST':
+        form = UserAdminProfileForm(data=request.POST, files=request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('admin_staff:admin_users'))
+    else:
+        form = UserAdminProfileForm(instance=user)
+    context = {'form': form, 'user': user}
+    return render(request, 'adminapp/admin-users-update-delete.html', context)
 
 
-def admin_users_delete(request):
-    pass
+# DELETE
+@user_passes_test(lambda u: u.is_superuser)
+def admin_users_delete(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.is_active = False
+    user.save()
+    return HttpResponseRedirect(reverse('admin_staff:admin_users'))
