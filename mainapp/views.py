@@ -22,9 +22,9 @@ def products(request, id=None):
     return render(request, 'mainapp/products.html', context)
 
 
-def product(request):
+def product(request, id):
     context = {
-        'title': Product.name
+        'product': Product.objects.get(id=id)
     }
     return render(request, 'mainapp/product.html', context)
 
