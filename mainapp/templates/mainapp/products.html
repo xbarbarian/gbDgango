@@ -15,7 +15,7 @@
                 <h1 class="my-4">GeekShop</h1>
                 <div class="list-group">
                     {% for category in categories %}
-                        <a href="#"
+                        <a href="{% url 'products:product' category.id %}"
                            class="list-group-item">{{ category.name }}</a>
                     {% endfor %}
                 </div>
@@ -84,30 +84,28 @@
                     {% endfor %}
 
                 </div>
-
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-center">
+                {% if is_paginated %}
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
 
                             {% if page_obj.has_previous %}
                                 <a class="page-link" href="?page=1">&laquo; First</a>
                                 <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
                             {% endif %}
-                        {% for page in page_obj.paginator.page_range %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page }}"> {{ page }}</a>
-                            </li>
-                        {% endfor %}
+                            {% for page in page_obj.paginator.page_range %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page }}"> {{ page }}</a>
+                                </li>
+                            {% endfor %}
                             {% if page_obj.has_next %}
                                 <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
                                 <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
                             {% endif %}
-                    </ul>
-                </nav>
-
+                        </ul>
+                    </nav>
+                {% endif %}
             </div>
-
         </div>
-
     </div>
 {% endblock %}
 
