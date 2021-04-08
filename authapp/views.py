@@ -17,16 +17,14 @@ from authapp.forms import UserRegisterForm, UserLoginForm, UserProfileForm, User
 
 
 class LoginFormView(LoginView):
+    model = User
     template_name = 'authapp/login.html'
     form_class = UserLoginForm
-
-    def get_context_data(self, **kwargs):
-        context = super(LoginFormView, self).get_context_data(**kwargs)
-        context['title'] = 'GeekShop - Авторизация'
-        return context
+    title = 'Авторизация'
 
 
 class RegisterListView(FormView):
+    model = User
     template_name = 'authapp/register.html'
     form_class = UserRegisterForm
     success_url = reverse_lazy('index')
@@ -83,6 +81,7 @@ def logout(request):
 
 
 class ProfileFormView(FormView):
+    model = User
     form_class = UserProfileForm
     form_class_second = UserProfileEditForm
     success_url = reverse_lazy('auth:profile')
@@ -102,6 +101,7 @@ class ProfileFormView(FormView):
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         user = User.objects.get(pk=self.request.user.pk)
+
         edit_form = UserProfileForm(data=request.POST, files=request.FILES, instance=user)
         profile_form = UserProfileEditForm(data=request.POST, files=request.FILES, instance=user.userprofile)
 

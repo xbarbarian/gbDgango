@@ -10,7 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import os, json
+import json
+import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,7 +132,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 AUTH_USER_MODEL = 'authapp.User'
 
 LOGIN_URL = '/auth/login/'
-
+LOGIN_REDIRECT_URL = '/'
 
 DOMAIN_NAME = 'http://localhost:8000'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -145,13 +146,13 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-SOCIAL_SECRETS_FILE = "yandex.json"
-SOCIAL = {}
-if os.path.exists(SOCIAL_SECRETS_FILE):
-    with open(SOCIAL_SECRETS_FILE, 'r')as f:
-        SOCIAL = json.load(f)
+# SOCIAL_SECRETS_FILE = "yandex.json"
+# SOCIAL = {}
+# if os.path.exists(SOCIAL_SECRETS_FILE):
+#     with open(SOCIAL_SECRETS_FILE, 'r')as f:
+#         SOCIAL = json.load(f)
 
 
-SESSION_COOKIE_SECURE = True
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = SOCIAL.get('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', "")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = SOCIAL.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', "")
+# SESSION_COOKIE_SECURE = True
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = SOCIAL.get('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', "")
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = SOCIAL.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', "")

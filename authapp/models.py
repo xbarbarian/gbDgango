@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 
 class User(AbstractUser):
     avatar = models.ImageField(upload_to='users_avatar', blank=True)
+    age = models.PositiveIntegerField(verbose_name='возраст', null=True)
 
     activation_key = models.CharField(max_length=128, blank=True)
     activation_key_expires = models.DateTimeField(default=(now() + timedelta(hours=48)))
