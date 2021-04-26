@@ -1,23 +1,23 @@
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.contrib.auth.views import LoginView
 from django.core.mail import send_mail
-from django.shortcuts import render, HttpResponseRedirect, redirect
+from django.shortcuts import render, HttpResponseRedirect, redirect, get_object_or_404
 from django.contrib import auth
 from django.urls import reverse, reverse_lazy
-from django.utils.decorators import method_decorator
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 
 
-from authapp.models import User
+from authapp.models import User, UserProfile
 from basketapp.models import Basket
-from authapp.forms import UserRegisterForm, UserLoginForm, UserProfileForm, UserProfileEditForm
+from authapp.forms import UserRegisterForm, UserLoginForm, UserEditForm, UserProfileEditForm
 
 
 class LoginFormView(LoginView):
     model = User
+    success_url = '/'
     template_name = 'authapp/login.html'
     form_class = UserLoginForm
     title = 'Авторизация'
@@ -27,7 +27,7 @@ class RegisterListView(FormView):
     model = User
     template_name = 'authapp/register.html'
     form_class = UserRegisterForm
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('auth:login')
 
     def get_context_data(self, **kwargs):
         context = super(RegisterListView, self).get_context_data(**kwargs)
@@ -80,29 +80,29 @@ def logout(request):
     return HttpResponseRedirect(reverse('index'))
 
 
-class ProfileFormView(FormView):
-    model = User
-    form_class = UserProfileForm
+class ProfileEdit(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = UserEditForm
     form_class_second = UserProfileEditForm
     success_url = reverse_lazy('auth:profile')
     template_name = 'authapp/profile.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(ProfileFormView, self).get_context_data(**kwargs)
-        context['title'] = 'GeekShop - Профиль'
-        context['profile_form'] = self.form_class_second(instance=self.request.user.userprofile)
-        context['baskets'] = Basket.objects.filter(user=self.request.user)
-        return context
+    def get_object(self):
+        return get_object_or_404(User, pk=self.request.user.pk)
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(ProfileFormView, self).dispatch(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(ProfileEdit, self).get_context_data(**kwargs)
+
+        self_pk = self.object.pk
+        user = User.objects.get(pk=self_pk)
+        context['profile_form'] = self.form_class_second(instance=user.userprofile)
+        context['baskets'] = Basket.objects.filter(user=user)
+        return context
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         user = User.objects.get(pk=self.request.user.pk)
-
-        edit_form = UserProfileForm(data=request.POST, files=request.FILES, instance=user)
+        edit_form = UserEditForm(data=request.POST, files=request.FILES, instance=user)
         profile_form = UserProfileEditForm(data=request.POST, files=request.FILES, instance=user.userprofile)
 
         if edit_form.is_valid() and profile_form.is_valid():
