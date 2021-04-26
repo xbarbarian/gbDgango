@@ -1,6 +1,9 @@
+import hashlib
+import random
+
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
 from django import forms
-from authapp.models import User
+from authapp.models import User, UserProfile
 
 
 class UserLoginForm(AuthenticationForm):
@@ -32,8 +35,18 @@ class UserRegisterForm(UserCreationForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control py-4'
 
+    def save(self):
+        user = super(UserRegisterForm, self).save()
 
-class UserProfileForm(UserChangeForm):
+        user.is_active = False
+        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:6]
+        user.activation_key = hashlib.sha1((user.email + salt).encode('utf8')).hexdigest()
+        user.save()
+
+        return user
+
+
+class UserEditForm(UserChangeForm):
     avatar = forms.ImageField(widget=forms.FileInput(), required=False)
 
     class Meta:
@@ -41,7 +54,7 @@ class UserProfileForm(UserChangeForm):
         fields = ('first_name', 'last_name', 'avatar', 'username', 'email')
 
     def __init__(self, *args, **kwargs):
-        super(UserProfileForm, self).__init__(*args, **kwargs)
+        super(UserEditForm, self).__init__(*args, **kwargs)
 
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control py-4' if not field_name == 'avatar' else 'custom-file-input'
@@ -49,3 +62,14 @@ class UserProfileForm(UserChangeForm):
         self.fields['username'].widget.attrs['readonly'] = True
         self.fields['email'].widget.attrs['readonly'] = True
         # self.fields['avatar'].widget.attrs['class'] = 'custom-file-input'
+
+
+class UserProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('tagline', 'gender', 'about_me')
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileEditForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'

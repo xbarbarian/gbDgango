@@ -3,3 +3,5 @@ __pycache__/
 media/
 /static/vendor/img/no-image.png
 db.sqlite3
+yandex.json
+geekshop/.env
